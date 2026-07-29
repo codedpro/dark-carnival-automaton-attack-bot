@@ -1,0 +1,20 @@
+# Local virtual environment created by run.bat / test.bat
+.venv/
+venv/
+
+# Python cache / build artifacts
+__pycache__/
+*.pyc
+build/
+dist/
+*.spec
+
+# Personal settings (each player tunes their own).
+# A config.example.json is shipped instead; first launch generates config.json.
+config.json
+
+# Editor / OS cruft
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini

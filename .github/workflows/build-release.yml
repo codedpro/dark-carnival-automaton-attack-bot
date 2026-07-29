@@ -1,0 +1,54 @@
+name: Build Windows .exe and publish Release
+
+# Builds a standalone automaton-attack-bot.exe and attaches it to a GitHub Release
+# whenever you push a version tag like v1.0.0. Also runnable manually.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build standalone .exe
+        run: >
+          pyinstaller --onefile --name automaton-attack-bot
+          --collect-all win32ctypes
+          automaton_attack_bot.py
+
+      - name: Bundle example config with the exe
+        run: copy config.example.json dist\config.example.json
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: automaton-attack-bot-windows
+          path: dist/*
+
+      - name: Publish to Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/automaton-attack-bot.exe
+            dist/config.example.json
+          generate_release_notes: true

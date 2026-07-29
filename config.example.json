@@ -1,0 +1,15 @@
+{
+  "_comment": "Example config. The bot writes its own config.json on first launch, so you usually never touch this. Every field is explained in the README's Tuning table.",
+  "charset": "abcdefghijklmnopqrstuvwxyz",
+  "order": "alphabet",
+  "keys_per_second": 500,
+  "key_hold": 0.0,
+  "burst_size": 0,
+  "burst_pause": 0.0,
+  "send_mode": "scancode",
+  "window_guard": true,
+  "window_title": "Dota 2",
+  "start_delay": 0,
+  "max_run_seconds": 0,
+  "hud": true
+}

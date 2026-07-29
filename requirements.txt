@@ -1,0 +1,4 @@
+# Automaton Attack Bot — Python dependencies
+# Installed automatically by run.bat / test.bat into a local .venv folder.
+keyboard>=0.13.5
+pywin32>=306
