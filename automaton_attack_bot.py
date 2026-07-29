@@ -35,8 +35,28 @@ import ctypes
 import keyboard
 import win32gui
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+def _base_dir():
+    """Folder that holds config.json.
+
+    For a PyInstaller one-file .exe this must be the folder containing the .exe,
+    NOT __file__ — that resolves to a temporary extraction dir which Windows wipes
+    on exit, so settings would silently fail to persist between runs.
+    """
+    if getattr(sys, "frozen", False):
+        return os.path.dirname(os.path.abspath(sys.executable))
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+HERE = _base_dir()
 CONFIG_PATH = os.path.join(HERE, "config.json")
+
+# The packaged .exe inherits the console's legacy codepage, which mangles
+# non-ASCII output. Ask for UTF-8 and keep console strings ASCII anyway.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 # English letter frequency, most common first — used by order="frequency".
 FREQ_ORDER = "etaoinshrdlcumwfgypbvkjxqz"
@@ -263,16 +283,17 @@ class Bot:
         start_delay = float(cfg.get("start_delay", 0) or 0)
 
         self._bind()
-        start_mode = "starts TYPING" if self.active else "starts PAUSED — focus Dota, press F8"
+        start_mode = ("starts TYPING" if self.active
+                      else "starts PAUSED - focus Dota, press F8")
         print(f"\n=== RUNNING ===  ({start_mode})")
         print("  F8 toggle typing | F9/Esc quit")
         if guard:
-            print(f"  Window guard ON — only types while a window titled "
+            print(f"  Window guard ON - only types while a window titled "
                   f"'{cfg.get('window_title')}' is focused.")
         else:
-            print("  [!] Window guard OFF — it will type into whatever is focused.")
+            print("  [!] Window guard OFF - it will type into whatever is focused.")
         if self.typist.dry_run:
-            print("  [dry-run] counting keystrokes only — nothing is sent.\n")
+            print("  [dry-run] counting keystrokes only - nothing is sent.\n")
         else:
             print()
 
@@ -331,7 +352,7 @@ class Bot:
                 if max_run > 0 and self.active_seconds + (now - started_at) >= max_run:
                     self.active = False
                     self._log(f"[bot] auto-paused after {max_run:.0f}s "
-                              f"(max_run_seconds) — press F8 to resume")
+                              f"(max_run_seconds) - press F8 to resume")
                     continue
 
                 self.typist.tap(seq[idx])
@@ -364,7 +385,7 @@ class Bot:
             if was_active:
                 self.active_seconds += time.perf_counter() - started_at
             self._log("")
-        print(f"[bot] stopped — {self.keys_sent:,} keys sent in "
+        print(f"[bot] stopped - {self.keys_sent:,} keys sent in "
               f"{self.active_seconds:.1f}s of typing.")
 
 
